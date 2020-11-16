@@ -1,3 +1,3 @@
-## Chuoyue-Gins
+## Chuoyue-Gin
 
-### 基于Gin构建Chuoyue
+### 基于Gin-Vue-Admin构建Chuoyue
