@@ -2,15 +2,21 @@ package initialize
 
 import (
 	"gin-vue-admin/global"
+	"gin-vue-admin/initialize/internal"
 	"gin-vue-admin/model"
+	"os"
+
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"os"
 )
 
-// Gorm 初始化数据库并产生数据库全局变量
+//@author: SliverHorn
+//@function: Gorm
+//@description: 初始化数据库并产生数据库全局变量
+//@return: *gorm.DB
+
 func Gorm() *gorm.DB {
 	switch global.GVA_CONFIG.System.DbType {
 	case "mysql":
@@ -20,7 +26,12 @@ func Gorm() *gorm.DB {
 	}
 }
 
-// MysqlTables 注册数据库表专用
+// MysqlTables
+//@author: SliverHorn
+//@function: MysqlTables
+//@description: 注册数据库表专用
+//@param: db *gorm.DB
+
 func MysqlTables(db *gorm.DB) {
 	err := db.AutoMigrate(
 		model.SysUser{},
@@ -29,8 +40,6 @@ func MysqlTables(db *gorm.DB) {
 		model.SysBaseMenu{},
 		model.SysBaseMenuParameter{},
 		model.JwtBlacklist{},
-		model.SysWorkflow{},
-		model.SysWorkflowStepInfo{},
 		model.SysDictionary{},
 		model.SysDictionaryDetail{},
 		model.ExaFileUploadAndDownload{},
@@ -39,6 +48,13 @@ func MysqlTables(db *gorm.DB) {
 		model.ExaSimpleUploader{},
 		model.ExaCustomer{},
 		model.SysOperationRecord{},
+		model.WorkflowProcess{},
+		model.WorkflowNode{},
+		model.WorkflowEdge{},
+		model.WorkflowStartPoint{},
+		model.WorkflowEndPoint{},
+		model.WorkflowMove{},
+		model.ExaWfLeave{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Any("err", err))
@@ -47,9 +63,17 @@ func MysqlTables(db *gorm.DB) {
 	global.GVA_LOG.Info("register table success")
 }
 
-// GormMysql 初始化Mysql数据库
+//
+//@author: SliverHorn
+//@function: GormMysql
+//@description: 初始化Mysql数据库
+//@return: *gorm.DB
+
 func GormMysql() *gorm.DB {
 	m := global.GVA_CONFIG.Mysql
+	if m.Dbname == "" {
+		return nil
+	}
 	dsn := m.Username + ":" + m.Password + "@tcp(" + m.Path + ")/" + m.Dbname + "?" + m.Config
 	mysqlConfig := mysql.Config{
 		DSN:                       dsn,   // DSN data source name
@@ -60,8 +84,9 @@ func GormMysql() *gorm.DB {
 		SkipInitializeWithVersion: false, // 根据版本自动配置
 	}
 	if db, err := gorm.Open(mysql.New(mysqlConfig), gormConfig(m.LogMode)); err != nil {
-		global.GVA_LOG.Error("MySQL启动异常", zap.Any("err", err))
-		os.Exit(0)
+		//global.GVA_LOG.Error("MySQL启动异常", zap.Any("err", err))
+		//os.Exit(0)
+		//return nil
 		return nil
 	} else {
 		sqlDB, _ := db.DB()
@@ -71,17 +96,31 @@ func GormMysql() *gorm.DB {
 	}
 }
 
-// gormConfig 根据配置决定是否开启日志
+//@author: SliverHorn
+//@function: gormConfig
+//@description: 根据配置决定是否开启日志
+//@param: mod bool
+//@return: *gorm.Config
+
 func gormConfig(mod bool) *gorm.Config {
-	if mod {
-		return &gorm.Config{
-			Logger:                                   logger.Default.LogMode(logger.Info),
-			DisableForeignKeyConstraintWhenMigrating: true,
+	var config = &gorm.Config{DisableForeignKeyConstraintWhenMigrating: true}
+	switch global.GVA_CONFIG.Mysql.LogZap {
+	case "silent", "Silent":
+		config.Logger = internal.Default.LogMode(logger.Silent)
+	case "error", "Error":
+		config.Logger = internal.Default.LogMode(logger.Error)
+	case "warn", "Warn":
+		config.Logger = internal.Default.LogMode(logger.Warn)
+	case "info", "Info":
+		config.Logger = internal.Default.LogMode(logger.Info)
+	case "zap", "Zap":
+		config.Logger = internal.Default.LogMode(logger.Info)
+	default:
+		if mod {
+			config.Logger = internal.Default.LogMode(logger.Info)
+			break
 		}
-	} else {
-		return &gorm.Config{
-			Logger:                                   logger.Default.LogMode(logger.Silent),
-			DisableForeignKeyConstraintWhenMigrating: true,
-		}
+		config.Logger = internal.Default.LogMode(logger.Silent)
 	}
+	return config
 }

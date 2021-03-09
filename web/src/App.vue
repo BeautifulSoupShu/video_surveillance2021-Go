@@ -5,9 +5,12 @@
 </template>
 
 <script>
+import { checkDB } from "@/api/initdb"
 export default {
   name: 'app',
-  components: {}
+  async created(){
+    await checkDB()
+  }  
 }
 </script>
 
@@ -15,6 +18,7 @@ export default {
 // 引入初始化样式
 @import '@/style/main.scss';
 @import '@/style/base.scss';
+@import '@/style/mobile.scss';
 #app {
   background: #eee;
   height: 100vh;

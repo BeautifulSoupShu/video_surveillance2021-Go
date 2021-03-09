@@ -1,18 +1,43 @@
 package v1
 
 import (
+	"errors"
 	"fmt"
 	"gin-vue-admin/global"
 	"gin-vue-admin/model"
 	"gin-vue-admin/model/response"
 	"gin-vue-admin/service"
 	"gin-vue-admin/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	"net/url"
 	"os"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
+
+// @Tags AutoCode
+// @Summary 预览创建后的代码
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body model.AutoCodeStruct true "预览创建代码"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"创建成功"}"
+// @Router /autoCode/preview [post]
+func PreviewTemp(c *gin.Context) {
+	var a model.AutoCodeStruct
+	_ = c.ShouldBindJSON(&a)
+	if err := utils.Verify(a, utils.AutoCodeVerify); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	autoCode, err := service.PreviewTemp(a)
+	if err != nil {
+		global.GVA_LOG.Error("预览失败!", zap.Any("err", err))
+		response.FailWithMessage("预览失败", c)
+	} else {
+		response.OkWithDetailed(gin.H{"autoCode": autoCode}, "预览成功", c)
+	}
+}
 
 // @Tags AutoCode
 // @Summary 自动代码模板
@@ -30,51 +55,11 @@ func CreateTemp(c *gin.Context) {
 		return
 	}
 	if a.AutoCreateApiToSql {
-		apiList := [6]model.SysApi{
-			{
-				Path:        "/" + a.Abbreviation + "/" + "create" + a.StructName,
-				Description: "新增" + a.Description,
-				ApiGroup:    a.Abbreviation,
-				Method:      "POST",
-			},
-			{
-				Path:        "/" + a.Abbreviation + "/" + "delete" + a.StructName,
-				Description: "删除" + a.Description,
-				ApiGroup:    a.Abbreviation,
-				Method:      "DELETE",
-			},
-			{
-				Path:        "/" + a.Abbreviation + "/" + "delete" + a.StructName + "ByIds",
-				Description: "批量删除" + a.Description,
-				ApiGroup:    a.Abbreviation,
-				Method:      "DELETE",
-			},
-			{
-				Path:        "/" + a.Abbreviation + "/" + "update" + a.StructName,
-				Description: "更新" + a.Description,
-				ApiGroup:    a.Abbreviation,
-				Method:      "PUT",
-			},
-			{
-				Path:        "/" + a.Abbreviation + "/" + "find" + a.StructName,
-				Description: "根据ID获取" + a.Description,
-				ApiGroup:    a.Abbreviation,
-				Method:      "GET",
-			},
-			{
-				Path:        "/" + a.Abbreviation + "/" + "get" + a.StructName + "List",
-				Description: "获取" + a.Description + "列表",
-				ApiGroup:    a.Abbreviation,
-				Method:      "GET",
-			},
-		}
-		for _, v := range apiList {
-			if err := service.AutoCreateApi(v); err != nil {
-				global.GVA_LOG.Error("自动化创建失败!请自行清空垃圾数据!", zap.Any("err", err))
-				c.Writer.Header().Add("success", "false")
-				c.Writer.Header().Add("msg", url.QueryEscape("自动化创建失败!请自行清空垃圾数据!"))
-				return
-			}
+		if err := service.AutoCreateApi(&a); err != nil {
+			global.GVA_LOG.Error("自动化创建失败!请自行清空垃圾数据!", zap.Any("err", err))
+			c.Writer.Header().Add("success", "false")
+			c.Writer.Header().Add("msg", url.QueryEscape("自动化创建失败!请自行清空垃圾数据!"))
+			return
 		}
 	}
 	err := service.CreateTemp(a)
