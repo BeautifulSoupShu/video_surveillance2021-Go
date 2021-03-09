@@ -1,9 +1,9 @@
 {
-  "name": "gin-vue-admin",
+  "name": "Video_Surveillance_2021",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "node openDocument.js && vue-cli-service serve",
+    "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
