@@ -3,11 +3,16 @@
     <div class="container">
       <div class="top">
         <div class="desc">
-          <img class="logo_login" src="@/assets/logo_login.png" alt="" />
+<!--          <svg-icon icon-class="logo_login" src="@/assets/logo.svg" />-->
+          <img class="logo_login" src="@/assets/logo.png" alt="" />
+<!--            <div class="avatar_box">
+                <img src="../../assets/logo_my.jpg" alt="">
+            </div>-->
         </div>
         <div class="header">
+
           <a href="/">
-            <!-- <img src="~@/assets/logo.png" class="logo" alt="logo" /> -->
+<!--             <img src="~@/assets/logo.png" class="logo" alt="logo" />-->
             <span class="title">video_surveillance</span>
           </a>
         </div>
@@ -64,7 +69,7 @@
       </div>
 
       <div class="footer">
-        <div class="links">
+       <!-- <div class="links">
           <a href="http://doc.henrongyi.top/"
             ><img src="@/assets/docs.png" class="link-icon"
           /></a>
@@ -77,8 +82,8 @@
           <a href="https://space.bilibili.com/322210472"
             ><img src="@/assets/video.png" class="link-icon"
           /></a>
-        </div>
-        <div class="copyright">Copyright &copy; {{ curYear }} 💖flipped-aurora</div>
+        </div>-->
+        <div class="copyright">Copyright &copy; {{ curYear }} ——video_surveillance</div>
       </div>
     </div>
   </div>
