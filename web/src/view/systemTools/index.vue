@@ -1,15 +1,12 @@
 <template>
-  <div>
-    <keep-alive>
-      <router-view v-if="$route.meta.keepAlive"></router-view>
-    </keep-alive>
-    <router-view v-if="!$route.meta.keepAlive"></router-view>
-  </div>
+    <router-view></router-view>
 </template>
 
 <script>
 export default {
-  name: "System",
-};
+    name:"System",
+}
 </script>
-<style lang="scss"></style>
+<style lang="scss">
+    
+</style>

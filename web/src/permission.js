@@ -4,7 +4,8 @@ import getPageTitle from '@/utils/page'
 
 let asyncRouterFlag = 0
 
-const whiteList = ['login','init']
+const whiteList = ['login']
+
 router.beforeEach(async(to, from, next) => {
     const token = store.getters['user/token']
         // 在白名单中的判断情况

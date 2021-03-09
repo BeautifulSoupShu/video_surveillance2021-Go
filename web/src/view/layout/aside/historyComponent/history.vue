@@ -43,6 +43,7 @@ export default {
       rightActive: ""
     };
   },
+
   computed: {
     ...mapGetters("user", ["userInfo"]),
     defaultRouter() {
@@ -68,11 +69,7 @@ export default {
     ];
     this.historys =
       JSON.parse(sessionStorage.getItem("historys")) || initHistorys;
-      if(!window.sessionStorage.getItem("activeValue")){
-        this.activeValue = this.$route.name + JSON.stringify(this.$route.query)+JSON.stringify(this.$route.params)
-      }else{
-        this.activeValue = window.sessionStorage.getItem("activeValue");
-      }
+    this.activeValue = window.sessionStorage.getItem("activeValue");
     this.setTab(this.$route);
   },
 
